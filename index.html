@@ -5,11 +5,12 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Valentine</title>
+    <link rel="icon" href="styles/heart_ico.svg">
 
     <!-- build:css styles/main.css -->
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
-    
+
   </head>
   <body>
     <div class="container">
@@ -17,7 +18,7 @@
         <canvas id="universe"></canvas>
         <canvas id="canvas"></canvas>
         <iframe src="audio/[No Copyright Music] Unconditionally - Broken Elegance.mp3" allow="autoplay" style="display:none" id="iframeAudio"></iframe>
-        <audio autoplay loop>
+        <audio autoplay loop id="playAudio">
         	<source src="audio/[No Copyright Music] Unconditionally - Broken Elegance.mp3" type="audio/mpeg">
         </audio>
         <div id="footer" class="">
@@ -132,6 +133,7 @@
       </div>
     </div>
     <!-- build:js scripts/main.js -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="scripts/universe.js"></script>
     <script src="scripts/main.js"></script>
     <!-- endbuild -->

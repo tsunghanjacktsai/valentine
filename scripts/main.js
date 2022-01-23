@@ -1,35 +1,52 @@
-;(function (window) {
+;
+(function (window) {
   window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
-  window.webkitRequestAnimationFrame || window.msRequestAnimationFrame
+    window.webkitRequestAnimationFrame || window.msRequestAnimationFrame
 
   const FRAME_RATE = 60
   const PARTICLE_NUM = 2000
   const RADIUS = Math.PI * 2
-  const CANVASWIDTH = 500
-  const CANVASHEIGHT = 150
+  let ww = window.innerWidth
+  let wh = window.innerHeight * 0.3
   const CANVASID = 'canvas'
 
-  let texts = ['MY DEAR', 'LOOK UP AT THE', 'STARRY SKY', 'ARE YOU', 'LOOKING AT THE', 'SAME STAR', 'WITH ME ?', 'HAPPY', 'CHINESE', 'VALENTINE\'S', 'DAY', 'I MISS YOU']
+  let texts = ['MY DEAR LONG TEXT BLABLA', 'LOOK UP AT THE', 'STARRY SKY', 'ARE YOU', 'LOOKING AT THE', 'SAME STAR', 'WITH ME ?', 'HAPPY', 'VALENTINE\'S', 'DAY', 'I MISS YOU']
 
   let canvas,
     ctx,
     particles = [],
     quiver = true,
-    text = texts[0],
+    text = texts[0].toUpperCase(),
     textIndex = 0,
-    textSize = 70
+    textSize = 50
 
-  function draw () {
-    ctx.clearRect(0, 0, CANVASWIDTH, CANVASHEIGHT)
+  // responsive
+  // on window resize recalibration of the text's fontsize, alignment etc.
+  window.onresize = function () {
+    canvas.width = ww = window.innerWidth;
+    canvas.height = wh = window.innerHeight * 0.3;
+    textSize = 50;
+  };
+
+  function draw() {
+    ctx.clearRect(0, 0, ww, wh)
     ctx.fillStyle = 'rgb(255, 255, 255)'
     ctx.textBaseline = 'middle'
     ctx.fontWeight = 'bold'
     ctx.font = textSize + 'px \'SimHei\', \'Avenir\', \'Helvetica Neue\', \'Arial\', \'sans-serif\''
-    ctx.fillText(text, (CANVASWIDTH - ctx.measureText(text).width) * 0.5, CANVASHEIGHT * 0.5)
+    let textLength = ctx.measureText(text).width
+    // console.log(textLength)
+    // if text width is too long to fit in the canvas reduce the font size
+    while(textLength > ww) {
+      textSize--;
+      ctx.font = textSize + 'px \'SimHei\', \'Avenir\', \'Helvetica Neue\', \'Arial\', \'sans-serif\''
+      textLength = ctx.measureText(text).width
+    }
+    ctx.fillText(text, (ww - ctx.measureText(text).width) * 0.5, wh * 0.5)
 
-    let imgData = ctx.getImageData(0, 0, CANVASWIDTH, CANVASHEIGHT)
+    let imgData = ctx.getImageData(0, 0, ww, wh)
 
-    ctx.clearRect(0, 0, CANVASWIDTH, CANVASHEIGHT)
+    ctx.clearRect(0, 0, ww, wh)
 
     for (let i = 0, l = particles.length; i < l; i++) {
       let p = particles[i]
@@ -40,12 +57,12 @@
     window.requestAnimationFrame(draw)
   }
 
-  function particleText (imgData) {
-    // 点坐标获取
+  function particleText(imgData) {
+
     var pxls = []
-    for (var w = CANVASWIDTH; w > 0; w -= 3) {
-      for (var h = 0; h < CANVASHEIGHT; h += 3) {
-        var index = (w + h * (CANVASWIDTH)) * 4
+    for (var w = ww; w > 0; w -= 2) {
+      for (var h = 0; h < wh; h += 3) {
+        var index = (w + h * (ww)) * 4
         if (imgData.data[index] > 1) {
           pxls.push([w, h])
         }
@@ -104,9 +121,9 @@
     }
   }
 
-  function setDimensions () {
-    canvas.width = CANVASWIDTH
-    canvas.height = CANVASHEIGHT
+  function setDimensions() {
+    canvas.width = ww
+    canvas.height = wh
     canvas.style.position = 'absolute'
     canvas.style.left = '0%'
     canvas.style.top = '0%'
@@ -115,14 +132,14 @@
     canvas.style.marginTop = window.innerHeight * .15 + 'px'
   }
 
-  function event () {
+  function event() {
     document.addEventListener('click', function (e) {
       textIndex++
       if (textIndex >= texts.length) {
         textIndex--
         return
       }
-      text = texts[textIndex]
+      text = texts[textIndex].toUpperCase()
       console.log(textIndex)
     }, false)
 
@@ -132,12 +149,12 @@
         textIndex--
         return
       }
-      text = texts[textIndex]
+      text = texts[textIndex].toUpperCase()
       console.log(textIndex)
     }, false)
   }
 
-  function init () {
+  function init() {
     canvas = document.getElementById(CANVASID)
     if (canvas === null || !canvas.getContext) {
       return
@@ -154,26 +171,26 @@
   }
 
   class Particle {
-    constructor (canvas) {
+    constructor(canvas) {
       let spread = canvas.height
       let size = Math.random() * 1.2
-      // 速度
+
       this.delta = 0.06
-      // 现在的位置
+
       this.x = 0
       this.y = 0
-      // 上次的位置
+
       this.px = Math.random() * canvas.width
       this.py = (canvas.height * 0.5) + ((Math.random() - 0.5) * spread)
-      // 记录点最初的位置
+
       this.mx = this.px
       this.my = this.py
-      // 点的大小
+
       this.size = size
       // this.origSize = size
-      // 是否用来显示字
+
       this.inText = false
-      // 透明度相关
+
       this.opacity = 0
       this.fadeInRate = 0.005
       this.fadeOutRate = 0.03
@@ -181,26 +198,26 @@
       this.fadingOut = true
       this.fadingIn = true
     }
-    fadeIn () {
+    fadeIn() {
       this.fadingIn = this.opacity > this.opacityTresh ? false : true
       if (this.fadingIn) {
         this.opacity += this.fadeInRate
-      }else {
+      } else {
         this.opacity = 1
       }
     }
-    fadeOut () {
+    fadeOut() {
       this.fadingOut = this.opacity < 0 ? false : true
       if (this.fadingOut) {
         this.opacity -= this.fadeOutRate
         if (this.opacity < 0) {
           this.opacity = 0
         }
-      }else {
+      } else {
         this.opacity = 0
       }
     }
-    draw (ctx) {
+    draw(ctx) {
       ctx.fillStyle = 'rgba(226,225,142, ' + this.opacity + ')'
       ctx.beginPath()
       ctx.arc(this.x, this.y, this.size, 0, RADIUS, true)
@@ -208,14 +225,17 @@
       ctx.fill()
     }
   }
-  
-  var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-    if(!isChrome){
-      $('#iframeAudio').remove()
+
+  var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor)
+  if (!isChrome) {
+    console.log("not Chrome")
+    $('#iframeAudio').remove()
+  } else {
+    $('#playAudio').remove() // just to make sure that it will not have 2x audio in the background
   }
-  
+
   // setTimeout(() => {
-    init()  
+  init()
   // }, 4000);
   // mp3.play()
 })(window)
